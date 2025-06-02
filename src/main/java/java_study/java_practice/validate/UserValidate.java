@@ -5,7 +5,7 @@ import java_study.java_practice.error.ErrorCode;
 import java_study.java_practice.error.exception.BadRequestException;
 import java_study.java_practice.error.exception.NotFoundException;
 import java_study.java_practice.repository.UserRepository;
-import java_study.java_practice.user.UserEntity;
+import java_study.java_practice.domain.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

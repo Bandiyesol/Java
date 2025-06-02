@@ -1,4 +1,4 @@
-package java_study.java_practice.user;
+package java_study.java_practice.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,9 +37,4 @@ public class UserEntity {
     public void changePassword(String password) {
         this.password = password;
     }
-
-    public void giveToken(String token) {
-        this.token = token;
-    }
-
 }

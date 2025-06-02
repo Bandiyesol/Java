@@ -3,13 +3,13 @@ package java_study.java_practice.service;
 import java_study.java_practice.dto.UserLoginRequestDto;
 import java_study.java_practice.dto.UserSignupRequestDto;
 import java_study.java_practice.dto.UserSignupResponseDto;
+import java_study.java_practice.redis.RedisTokenRepository;
 import java_study.java_practice.repository.UserRepository;
-import java_study.java_practice.user.UserEntity;
+import java_study.java_practice.domain.UserEntity;
+import java_study.java_practice.validate.AuthValidate;
 import java_study.java_practice.validate.UserValidate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -17,11 +17,12 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final RedisTokenRepository redisTokenRepository;
     private final UserValidate userValidate;
+    private final AuthValidate authValidate;
 
     @Override
     public UserSignupResponseDto signUpUser(UserSignupRequestDto request) {
-
         String name = request.getName();
         String email = request.getEmail();
 
@@ -36,26 +37,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserEntity updateUser(UserEntity user) {
-
-        UserEntity userEntity = userValidate.UserValidateId(user.getId());
-
-        userValidate.UserValidateName(userEntity.getName());
-        userEntity.changeName(user.getName());
-
-        userValidate.UserValidateEmail(userEntity.getEmail());
-        userEntity.changeEmail(user.getEmail());
-
-        userEntity.changePassword(user.getPassword());
-
-        userRepository.save(userEntity);
-
-        return userEntity;
-    }
-
-    @Override
     public UserSignupResponseDto changeName(Long id, String name) {
-
         UserEntity user = userValidate.UserValidateId(id);
 
         userValidate.UserValidateName(name);
@@ -68,7 +50,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserSignupResponseDto changeEmail(Long id, String email) {
-
         UserEntity user = userValidate.UserValidateId(id);
 
         userValidate.UserValidateEmail(email);
@@ -82,7 +63,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserSignupResponseDto changePassword(Long id, String password) {
-
         UserEntity user = userValidate.UserValidateId(id);
 
         user.changePassword(password);
@@ -99,23 +79,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String loginUser(UserLoginRequestDto request) {
+    public String login(UserLoginRequestDto request) {
         UserEntity user = userValidate.findByNameAndPassword(request.getName(), request.getPassword());
 
-        String token = UUID.randomUUID().toString();
-
-        userRepository.save(user);
-
-        return token;
+        return redisTokenRepository.createTempToken(user.getEmail(), true);
     }
 
     @Override
     public void logout(String token) {
-        UserEntity user = userRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("유효하지 않은 토큰입니다."));
-
-        user.giveToken(null);
-
-        userRepository.save(user);
+        authValidate.validateTempToken(token);
+        redisTokenRepository.deleteTempToken(token);
     }
 }

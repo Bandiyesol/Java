@@ -1,11 +1,12 @@
 package java_study.java_practice.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java_study.java_practice.dto.UserLoginRequestDto;
 import java_study.java_practice.dto.UserSignupRequestDto;
 import java_study.java_practice.dto.UserSignupResponseDto;
 import java_study.java_practice.repository.UserRepository;
 import java_study.java_practice.service.UserService;
-import java_study.java_practice.user.UserEntity;
+import java_study.java_practice.domain.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -56,19 +57,22 @@ public class UserController {
     @DeleteMapping("/deleteinfo/{id}")
     public ResponseEntity<UserSignupResponseDto> deleteInfo(@PathVariable("id") Long id) {
         userService.deleteInfo(id);
+
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserLoginRequestDto request) {
-        String loginUser = userService.loginUser(request);
-        return ResponseEntity.ok(loginUser);
+        String token = userService.login(request);
+
+        return ResponseEntity.ok().header("tempToken", token).body("로그인 되었습니다.");
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestBody UserLoginRequestDto request) {
-        String loginUser = userService.loginUser(request);
-        userService.logout(loginUser);
+    public ResponseEntity<String> logout(@RequestBody HttpServletRequest request) {
+        String token = request.getHeader("tempToken");
+        userService.logout(token);
+
         return ResponseEntity.ok("로그아웃 되었습니다.");
     }
 

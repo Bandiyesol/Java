@@ -1,6 +1,6 @@
 package java_study.java_practice.dto;
 
-import java_study.java_practice.user.UserEntity;
+import java_study.java_practice.domain.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class UserSignupRequestDto {
 
     private String name;
@@ -18,7 +17,6 @@ public class UserSignupRequestDto {
     private String password;
 
     public UserEntity SignUpToUserEntity() {
-
         return UserEntity.builder()
                 .name(name)
                 .email(email)
